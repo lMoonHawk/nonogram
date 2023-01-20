@@ -17,6 +17,13 @@ grid = [[0] * ncol for _ in range(nrow)]
 # This value depends on the initial clicked cell before the motion
 override = 0
 
+# TODO: Clean redundant code with functions
+# Add space for clues on the GUI
+# Add buttons for solving by steps and in one go
+# Add option for entering clues
+# Add option to save clues to json
+# Add option to create nonogram from image
+
 
 def left_click(event):
     global override
