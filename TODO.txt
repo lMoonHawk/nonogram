@@ -1,7 +1,6 @@
 TODO:
 
 Code cleaning/optimisation:
-- Use of lambda function to remove the 4 bound commands on events 
 
 Functionalities / Improvements:
 - Add clues on the GUI
