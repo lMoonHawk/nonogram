@@ -16,8 +16,14 @@ grid = [[0] * ncol for _ in range(nrow)]
 # -1: update only crossed cells, 0: empty, 1: filled
 # This value depends on the initial clicked cell before the motion
 override = 0
+# Click position, used to keep track of direction when holding the button
+click_coord = None
+# Line direction when the button is held down
+click_direction = None
 
-# TODO: Clean redundant code with functions
+
+# TODO:
+# Clean redundant code with functions
 # Add space for clues on the GUI
 # Add buttons for solving by steps and in one go
 # Add option for entering clues
@@ -26,9 +32,8 @@ override = 0
 
 
 def left_click(event):
-    global override
+    global override, click_coord, click_direction
 
-    # print(f"clicked at {(event.x, event.y)} ({override=})")
     cell = puzzle.find_closest(event.x, event.y)
 
     # Only fill if the item is a cell (+2 for border)
@@ -47,13 +52,30 @@ def left_click(event):
 
         # Only modify same type cells if button held
         override = state
+        click_coord = event.x, event.y
+        click_direction = None
 
 
 def held_left_click(event):
-    global overrides
+    global overrides, click_coord, click_direction
+    click_x, click_y = click_coord
 
-    # print(f"clicked at {(event.x, event.y)} ({override=})")
-    cell = puzzle.find_closest(event.x, event.y)
+    if click_direction is None:
+        # User went for a horizontal line
+        if abs(event.x - click_x) > abs(event.y - click_y):
+            click_direction = 0
+        # User went for a vertical line
+        else:
+            click_direction = 1
+
+    if click_direction == 0:
+        x = event.x
+        y = click_y
+    else:
+        x = click_x
+        y = event.y
+
+    cell = puzzle.find_closest(x, y)
 
     # Only fill if the item is a cell (+2 for border)
     x0, _, x1, _ = puzzle.bbox(cell)
@@ -71,9 +93,8 @@ def held_left_click(event):
 
 
 def right_click(event):
-    global override
+    global override, click_coord, click_direction
 
-    # print(f"clicked at {(event.x, event.y)} ({override=})")
     cell = puzzle.find_closest(event.x, event.y)
 
     # Only fill if the item is a cell (+2 for border)
@@ -92,13 +113,30 @@ def right_click(event):
 
         # Only modify same type cells if button held
         override = state
+        click_coord = event.x, event.y
+        click_direction = None
 
 
 def held_right_click(event):
-    global override
+    global overrides, click_coord, click_direction
+    click_x, click_y = click_coord
 
-    # print(f"clicked at {(event.x, event.y)} ({override=})")
-    cell = puzzle.find_closest(event.x, event.y)
+    if click_direction is None:
+        # User went for a horizontal line
+        if abs(event.x - click_x) > abs(event.y - click_y):
+            click_direction = 0
+        # User went for a vertical line
+        else:
+            click_direction = 1
+
+    if click_direction == 0:
+        x = event.x
+        y = click_y
+    else:
+        x = click_x
+        y = event.y
+
+    cell = puzzle.find_closest(x, y)
 
     # Only fill if the item is a cell (+2 for border)
     x0, y0, x1, _ = puzzle.bbox(cell)
@@ -120,8 +158,6 @@ puzzle = tk.Canvas(root, bg="white", width=block_size * ncol // 5, height=block_
 puzzle.pack()
 
 # Add the blocks
-
-
 for i in range(nrow):
     for j in range(ncol):
         puzzle.create_rectangle(
