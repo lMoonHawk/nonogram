@@ -2,3 +2,4 @@ optimisation.py
 .venv
 .vscode
 nonogram.code-workspace
+__pycache__
