@@ -22,16 +22,8 @@ click_coord = None
 click_direction = None
 
 
-# TODO:
-# Add space for clues on the GUI
-# Add buttons for solving by steps and in one go
-# Add option for entering clues
-# Add option to save clues to json
-# Add option to create nonogram from image
-
-
 def mark(cell, click_type, held=False) -> bool:
-    """Mark the cell being clicked on, or hover over.
+    """Mark the cell being clicked on, or hovered over.
 
     Args:
         cell (_type_): tag of the cell clicked or hovered over

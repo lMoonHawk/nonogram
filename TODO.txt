@@ -1,0 +1,19 @@
+TODO:
+
+Code cleaning/optimisation:
+- Use of lambda function to remove the 4 bound commands on events 
+
+Functionalities / Improvements:
+- Add clues on the GUI
+- Add buttons for solving by steps and in one go
+- Add option for entering clues
+- Add option to save clues to json
+- Add option to create nonogram from an image
+
+Aesthetics / QoL:
+- When filled cells in a line/column are matching to the clue, cross the rest
+- When a match happens, add an animation
+
+Bugfix:
+- When drawing, the line is already locked when the movement of the mouse is inside the initial cell.
+    Maybe adding an event type "Enter" will solve this issue
