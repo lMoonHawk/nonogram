@@ -1,6 +1,6 @@
 block_size = 150
 cell_size = block_size // 5
-
+puzzle_nr = 1
 nrow = 20
 ncol = 20
 
