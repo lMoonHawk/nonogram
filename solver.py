@@ -2,7 +2,11 @@ import tkinter as tk
 from config import *
 from gui_functions import mark
 
+
 root = tk.Tk()
+root.title("Nonogram Solver")
+icon = tk.PhotoImage(file="icon.png")
+root.iconphoto(False, icon)
 
 # Create the puzzle
 puzzle = tk.Canvas(root, bg="white", width=block_size * ncol // 5, height=block_size * nrow // 5)
