@@ -1,7 +1,7 @@
 import json
 from copy import deepcopy
 
-puzzle = "3"
+puzzle = "1"
 
 # Visualization:
 # filled:  ■ (alt 254)

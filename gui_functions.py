@@ -1,8 +1,6 @@
 import tkinter as tk
 from config import *
 
-# from solver_tkinter import puzzle
-
 
 def mark(puzzle: tk.Canvas, event: tk.Event, click_type: int, held: bool = False):
     """Mark the cell being clicked on, or hovered over.
@@ -28,8 +26,12 @@ def mark(puzzle: tk.Canvas, event: tk.Event, click_type: int, held: bool = False
     if x1 - x0 != cell_size + 2:
         return
 
-    # Get row, column and current state of the cell in the grid
-    row, col = divmod(cell[0], ncol)
+    # Tag layout for a 3x3:
+    # 1,2,3
+    # 4,5,6
+    # 7,8,9
+    # subtracting 1 from the tag yields row and column in the grid with div and mod
+    row, col = divmod(cell[0] - 1, ncol)
     state = grid[row][col]
 
     # If button is held, state of the cell hovered must be the same as override
@@ -53,7 +55,6 @@ def mark(puzzle: tk.Canvas, event: tk.Event, click_type: int, held: bool = False
     if click_type == -1 and condition and state in [1, 0]:
         puzzle.itemconfig(cell, stipple="gray50", fill="#AAAAAA")
         grid[row][col] = -1
-
     if not held:
         click_coord = event.x, event.y
         click_direction = None
@@ -87,3 +88,28 @@ def snap_line(event: tk.Event) -> tuple:
         y = event.y
 
     return x, y
+
+
+def create_rounded_rectangle(canvas, x1, y1, x2, y2, rad=None, fill=None, outline="black", width=1):
+
+    if rad is None:
+        rad = min(x2 - x1, y2 - y1) // 10
+    rad = max(min(min(x2 - x1, y2 - y1) // 2, rad), 0)
+
+    if fill:
+        canvas.create_arc(x2 - 2 * rad, y1, x2, y1 + 2 * rad, fill=fill, outline=fill)
+        canvas.create_arc(x2 - 2 * rad, y2 - 2 * rad, x2, y2, start=3 * 90, fill=fill, outline=fill)
+        canvas.create_arc(x1, y2 - 2 * rad, x1 + 2 * rad, y2, start=2 * 90, fill=fill, outline=fill)
+        canvas.create_arc(x1, y1, x1 + 2 * rad, y1 + 2 * rad, start=1 * 90, fill=fill, outline=fill)
+        canvas.create_rectangle(x1 + rad, y1, x2 - rad, y2, fill=fill, width=0)
+        canvas.create_rectangle(x1, y1 + rad, x2, y2 - rad, fill=fill, width=0)
+
+    if width:
+        canvas.create_line(x1 + rad, y1, x2 - rad, y1, fill=outline, width=width)
+        canvas.create_line(x1 + rad, y2, x2 - rad, y2, fill=outline, width=width)
+        canvas.create_line(x1, y1 + rad, x1, y2 - rad, fill=outline, width=width)
+        canvas.create_line(x2, y1 + rad, x2, y2 - rad, fill=outline, width=width)
+        canvas.create_arc(x2 - 2 * rad, y1, x2, y1 + 2 * rad, start=0 * 90, style="arc", outline=outline, width=width)
+        canvas.create_arc(x2 - 2 * rad, y2 - 2 * rad, x2, y2, start=3 * 90, style="arc", outline=outline, width=width)
+        canvas.create_arc(x1, y2 - 2 * rad, x1 + 2 * rad, y2, start=2 * 90, style="arc", outline=outline, width=width)
+        canvas.create_arc(x1, y1, x1 + 2 * rad, y1 + 2 * rad, start=1 * 90, style="arc", outline=outline, width=width)
