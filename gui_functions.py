@@ -2,7 +2,7 @@ import tkinter as tk
 from config import *
 
 
-def mark(puzzle: tk.Canvas, event: tk.Event, click_type: int, held: bool = False):
+def mark(puzzle: tk.Canvas, event: tk.Event, clue_boxes, click_type: int, held: bool = False):
     """Mark the cell being clicked on, or hovered over.
 
     Args:
@@ -59,6 +59,8 @@ def mark(puzzle: tk.Canvas, event: tk.Event, click_type: int, held: bool = False
         click_coord = event.x, event.y
         click_direction = None
 
+    gui_matching(row, col, clue_boxes, puzzle)
+
 
 def snap_line(event: tk.Event) -> tuple:
     """Keeps track of the direction of the line the user went for.
@@ -96,13 +98,14 @@ def create_rounded_rectangle(canvas, x1, y1, x2, y2, rad=None, fill=None, outlin
         rad = min(x2 - x1, y2 - y1) // 10
     rad = max(min(min(x2 - x1, y2 - y1) // 2, rad), 0)
 
+    fill_tags = []
     if fill:
-        canvas.create_arc(x2 - 2 * rad, y1, x2, y1 + 2 * rad, fill=fill, outline=fill)
-        canvas.create_arc(x2 - 2 * rad, y2 - 2 * rad, x2, y2, start=3 * 90, fill=fill, outline=fill)
-        canvas.create_arc(x1, y2 - 2 * rad, x1 + 2 * rad, y2, start=2 * 90, fill=fill, outline=fill)
-        canvas.create_arc(x1, y1, x1 + 2 * rad, y1 + 2 * rad, start=1 * 90, fill=fill, outline=fill)
-        canvas.create_rectangle(x1 + rad, y1, x2 - rad, y2, fill=fill, width=0)
-        canvas.create_rectangle(x1, y1 + rad, x2, y2 - rad, fill=fill, width=0)
+        fill_tags.append(canvas.create_arc(x2 - 2 * rad, y1, x2, y1 + 2 * rad, fill=fill, outline=fill))
+        fill_tags.append(canvas.create_arc(x2 - 2 * rad, y2 - 2 * rad, x2, y2, start=3 * 90, fill=fill, outline=fill))
+        fill_tags.append(canvas.create_arc(x1, y2 - 2 * rad, x1 + 2 * rad, y2, start=2 * 90, fill=fill, outline=fill))
+        fill_tags.append(canvas.create_arc(x1, y1, x1 + 2 * rad, y1 + 2 * rad, start=1 * 90, fill=fill, outline=fill))
+        fill_tags.append(canvas.create_rectangle(x1 + rad, y1, x2 - rad, y2, fill=fill, width=0))
+        fill_tags.append(canvas.create_rectangle(x1, y1 + rad, x2, y2 - rad, fill=fill, width=0))
 
     if width:
         canvas.create_line(x1 + rad, y1, x2 - rad, y1, fill=outline, width=width)
@@ -113,3 +116,112 @@ def create_rounded_rectangle(canvas, x1, y1, x2, y2, rad=None, fill=None, outlin
         canvas.create_arc(x2 - 2 * rad, y2 - 2 * rad, x2, y2, start=3 * 90, style="arc", outline=outline, width=width)
         canvas.create_arc(x1, y2 - 2 * rad, x1 + 2 * rad, y2, start=2 * 90, style="arc", outline=outline, width=width)
         canvas.create_arc(x1, y1, x1 + 2 * rad, y1 + 2 * rad, start=1 * 90, style="arc", outline=outline, width=width)
+
+    return fill_tags
+
+
+def matching(clue: list[int], line: list[int], complete=True, rev=False) -> list[int]:
+    """Perform three checks on line to clue matching. First, check if the line contains all blocks in the clue.
+    If false, check if some block clues are identifiable from each side of the line.
+
+    Args:
+        clue (list[int]): Clue listing the blocks with which to match the line.
+        line (list[int]): Status of each cell in the line (0:unmarked, 1: filled, -1:crossed)
+        complete (bool, optional): Check if all blocks in the clue are present. Defaults to True.
+        rev (bool, optional): Check from the other side of the line. Defaults to False.
+
+    Returns:
+        list[int]: Indexes of blocks matched with the clue
+    """
+    n = len(clue)
+    out = set()
+
+    line_check = line
+    if rev:
+        line_check = line[::-1]
+
+    count = 0
+    block_index = 0
+    for k, cell in enumerate(line_check):
+        # "block" is what we are trying to match a streak of filled cells with
+        index = block_index if not rev else n - 1 - block_index
+        if index == len(clue):
+            break
+        block = clue[index]
+
+        if cell == 1:
+            count += 1
+        # We are stopping the streak of filled cells (-1, 0 or reached the end)
+        if cell in [-1, 0] or k == len(line) - 1:
+            # If this streak corresponds to the block, there is a match
+            if count == block:
+                # Add index to the output
+                out.add(index)
+                count = 0
+                # Try matching next block
+                block_index += 1
+        # If we are looking for a complete match, ignore 0 and move to next streak
+        # If not and we reach a 0, matching stops for this side of the line
+        if not complete and cell == 0:
+            break
+
+    # We tried one side of the line, try the reverse and add the result
+    if not complete and not rev:
+        return list(out.union(matching(clue, line, complete=False, rev=True)))
+    # We tried to match the whole clue and failed, move on to look at individual block matching
+    if complete and len(out) != n:
+        return list(matching(clue, line, complete=False))
+
+    return out
+
+
+def gui_matching(row, col, clue_boxes, puzzle):
+    [
+        [horizontal_clues, horizontal_boxes, horizontal_clues_tags],
+        [vertical_clues, vertical_boxes, vertical_clues_tags],
+    ] = clue_boxes
+
+    line_row = grid[row]
+    line_col = [grid[k][col] for k in range(len(grid))]
+
+    matched_idx_row = matching(clues[1][row], line_row)
+    matched_idx_col = matching(clues[0][col], line_col)
+
+    # Columns
+    for j, _ in enumerate(clues[0][col]):
+        fill = "black"
+        if j in matched_idx_col:
+            fill = "grey"
+        vertical_clues.itemconfig(vertical_clues_tags[col][j], fill=fill)
+
+    fill = "#bbd0f2"
+    if len(matched_idx_col) == len(clues[0][col]):
+        fill = "#ebf1fa"
+        for i in range(nrow):
+            if grid[i][col] != 1:
+                grid[i][col] = -1
+                cell = (i * ncol + col + 1,)
+                puzzle.itemconfig(cell, stipple="gray50", fill="#AAAAAA")
+
+    # Fill all shapes making up the rounded rectangle
+    for shape in vertical_boxes[col]:
+        vertical_clues.itemconfig(shape, fill=fill, outline=fill)
+
+    # Rows
+    for i, _ in enumerate(clues[1][row]):
+        fill = "black"
+        if i in matched_idx_row:
+            fill = "grey"
+        horizontal_clues.itemconfig(horizontal_clues_tags[row][i], fill=fill)
+
+    fill = "#bbd0f2"
+    if len(matched_idx_row) == len(clues[1][row]):
+        fill = "#ebf1fa"
+        for j in range(ncol):
+            if grid[row][j] != 1:
+                grid[row][j] = -1
+                cell = (row * ncol + j + 1,)
+                puzzle.itemconfig(cell, stipple="gray50", fill="#AAAAAA")
+    # Fill all shapes making up the rounded rectangle
+    for shape in horizontal_boxes[row]:
+        horizontal_clues.itemconfig(shape, fill=fill, outline=fill)

@@ -9,7 +9,7 @@ def matching(clue: list[int], line: list[int], complete=True, rev=False) -> list
         rev (bool, optional): Check from the other side of the line. Defaults to False.
 
     Returns:
-        list[int]: indexes of blocks matched with the clue
+        list[int]: Indexes of blocks matched with the clue
     """
     n = len(clue)
     out = set()
@@ -21,13 +21,15 @@ def matching(clue: list[int], line: list[int], complete=True, rev=False) -> list
     count = 0
     block_index = 0
     for k, cell in enumerate(line_check):
-        # block is the block in the clue that we are trying to match with
+        # "block" is what we are trying to match a streak of filled cells with
         index = block_index if not rev else n - 1 - block_index
+        if index == len(clue):
+            break
         block = clue[index]
 
         if cell == 1:
             count += 1
-        # We are stopping the streak of filled cells (-1,0 or reached the end)
+        # We are stopping the streak of filled cells (-1, 0 or reached the end)
         if cell in [-1, 0] or k == len(line) - 1:
             # If this streak corresponds to the block, there is a match
             if count == block:
@@ -44,7 +46,7 @@ def matching(clue: list[int], line: list[int], complete=True, rev=False) -> list
     # We tried one side of the line, try the reverse and add the result
     if not complete and not rev:
         return list(out.union(matching(clue, line, complete=False, rev=True)))
-    # We tried to match the whole clue and failed, move on to look at individual blocks matching
+    # We tried to match the whole clue and failed, move on to look at individual block matching
     if complete and len(out) != n:
         return list(matching(clue, line, complete=False))
 
@@ -53,7 +55,7 @@ def matching(clue: list[int], line: list[int], complete=True, rev=False) -> list
 
 clue = [10, 3, 3]
 line = [-1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, -1]
-print(f"{list(matching(clue, line))} / [0,2] expected")
+print(f"{list(matching(clue, line))} / [0, 2] expected")
 
 clue = [10, 3, 3]
 line = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, -1]
@@ -61,7 +63,7 @@ print(f"{list(matching(clue, line))} / [2] expected")
 
 clue = [10, 3, 3]
 line = [-1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, -1]
-print(f"{list(matching(clue, line))} / [0,1,2] expected")
+print(f"{list(matching(clue, line))} / [0, 1, 2] expected")
 
 clue = [4, 5, 2]
 line = [-1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, -1]
@@ -73,4 +75,8 @@ print(f"{list(matching(clue, line))} / [0] expected")
 
 clue = [4, 5, 2]
 line = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, -1, 1, 1, -1]
-print(f"{list(matching(clue, line))} / [0,2] expected")
+print(f"{list(matching(clue, line))} / [0, 2] expected")
+
+clue = [6]
+line == [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+print(f"{list(matching(clue, line))} / [0] expected")
