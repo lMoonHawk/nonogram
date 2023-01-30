@@ -10,11 +10,7 @@ Functionalities / Improvements:
 - Add option to create nonogram from an image
 
 Aesthetics / QoL:
-- When a filled cell match a clue without ambiguity, grey out the block clue
-    *Without ambiguity means that every cell between the updated cell and a border must be either crossed or filled
-- When filled cells in a line/column are matching to the clue, cross the rest
 - When a match happens, add an animation
-- Improve quality of the rounded rectangle for clue boxes 
 
 Bugfix:
 - When drawing, the line is already locked when the movement of the mouse is inside the initial cell

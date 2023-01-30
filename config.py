@@ -13,6 +13,7 @@ clues = json.loads(clues)
 
 # Padding between clues
 pad = 2
+clue_font = ("Segoe UI", 10, "bold")
 # Height in pixel for a line of ("Segoe UI", 10, "bold")
 font_height = 17
 # Width in pixel of 1 and 2 chars of ("Segoe UI", 10, "bold")

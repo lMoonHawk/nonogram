@@ -37,7 +37,7 @@ for i, clue in enumerate(clues[0]):
             text=str(block),
             anchor="s",
             justify="center",
-            font=("Segoe UI", 10, "bold"),
+            font=clue_font,
         )
         clue_tag.append(tag)
     vertical_clues_tags.append(clue_tag)
@@ -64,7 +64,7 @@ for j, clue in enumerate(clues[1]):
             j * cell_size + cell_size // 2,
             text=str(block),
             anchor="e",
-            font=("Segoe UI", 10, "bold"),
+            font=clue_font,
         )
         char_len += font_width[len(str(block))] + 2
         clue_tag.append(tag)
