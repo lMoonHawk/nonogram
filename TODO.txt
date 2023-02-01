@@ -13,5 +13,3 @@ Aesthetics / QoL:
 - When a match happens, add an animation
 
 Bugfix:
-- When drawing, the line is already locked when the movement of the mouse is inside the initial cell
-    *Maybe adding an event type "Enter" will solve this issue
