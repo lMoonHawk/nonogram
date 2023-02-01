@@ -1,10 +1,16 @@
 import json
+from PIL import Image, ImageTk
 
 block_size = 150
 cell_size = block_size // 5
 puzzle_nr = 1
 nrow = 20
 ncol = 20
+
+image = Image.open("cross.xbm", mode="r")
+image = image.resize((cell_size - 2, cell_size - 2))
+image.save("cross2.xbm")
+
 
 with open(f"puzzles/puzzle{puzzle_nr}.json") as file:
     clues = file.read()
