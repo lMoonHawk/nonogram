@@ -53,7 +53,7 @@ def mark(puzzle: tk.Canvas, event: tk.Event, clue_boxes, click_type: int, held: 
         grid[row][col] = 1
     # Right click a different cell type
     if click_type == -1 and condition and state in [1, 0]:
-        puzzle.itemconfig(cell, stipple="@cross.xbm", fill="#c8c8c8", offset="nw")
+        puzzle.itemconfig(cell, stipple="@img/cross.xbm", fill="#c8c8c8", offset="nw")
         grid[row][col] = -1
     if not held:
         click_coord = event.x, event.y
@@ -172,7 +172,17 @@ def matching(clue: list[int], line: list[int], complete: bool = True) -> list[in
         return out
 
 
+def animate_cross(puzzle, cell):
+    puzzle.itemconfig(cell, stipple="@img/cross.xbm", fill="#c8c8c8", offset="nw")
+
+
+def animate_fill(puzzle, cell):
+    puzzle.itemconfig(cell, stipple="", fill="black")
+
+
 def gui_matching(row, col, clue_boxes, puzzle):
+    anim_delay = 15
+
     [
         [horizontal_clues, horizontal_boxes, horizontal_clues_tags],
         [vertical_clues, vertical_boxes, vertical_clues_tags],
@@ -194,11 +204,22 @@ def gui_matching(row, col, clue_boxes, puzzle):
     fill = "#bbd0f2"
     if len(matched_idx_col) == len(clues[0][col]):
         fill = "#ebf1fa"
-        for i in range(nrow):
-            if grid[i][col] != 1:
-                grid[i][col] = -1
-                cell = (i * ncol + col + 1,)
-                puzzle.itemconfig(cell, stipple="@cross.xbm", fill="#c8c8c8", offset="nw")
+
+        for i in range(1, 2 * max(nrow - row, nrow)):
+            # Alternates -1, 1, -2, 2, -3...
+            div, mod = divmod(i, -2)
+            k = div * (mod * 2 + 1)
+            if not (0 <= row + k <= nrow - 1):
+                continue
+
+            cell = ((row + k) * ncol + col + 1,)
+            puzzle.itemconfig(cell, stipple="", fill="#3a5cbf")
+
+            if grid[row + k][col] != 1:
+                grid[row + k][col] = -1
+                puzzle.after(anim_delay * abs(k), animate_cross, puzzle, cell)
+            else:
+                puzzle.after(anim_delay * abs(k), animate_fill, puzzle, cell)
 
     # Fill all shapes making up the rounded rectangle
     for shape in vertical_boxes[col]:
@@ -214,11 +235,22 @@ def gui_matching(row, col, clue_boxes, puzzle):
     fill = "#bbd0f2"
     if len(matched_idx_row) == len(clues[1][row]):
         fill = "#ebf1fa"
-        for j in range(ncol):
-            if grid[row][j] != 1:
-                grid[row][j] = -1
-                cell = (row * ncol + j + 1,)
-                puzzle.itemconfig(cell, stipple="@cross.xbm", fill="#c8c8c8", offset="nw")
+
+        for j in range(1, 2 * max(ncol - col, ncol)):
+            div, mod = divmod(j, -2)
+            k = div * (mod * 2 + 1)
+            if not (0 <= col + k <= ncol - 1):
+                continue
+
+            cell = (row * ncol + (col + k) + 1,)
+            puzzle.itemconfig(cell, stipple="", fill="#3a5cbf")
+
+            if grid[row][col + k] != 1:
+                grid[row][col + k] = -1
+                puzzle.after(anim_delay * abs(k), animate_cross, puzzle, cell)
+            else:
+                puzzle.after(anim_delay * abs(k), animate_fill, puzzle, cell)
+
     # Fill all shapes making up the rounded rectangle
     for shape in horizontal_boxes[row]:
         horizontal_clues.itemconfig(shape, fill=fill, outline=fill)

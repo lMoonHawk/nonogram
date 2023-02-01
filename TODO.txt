@@ -1,6 +1,7 @@
 TODO:
 
 Code cleaning/optimisation:
+- Add function for matching to avoid redundant code for col and rows
 
 Functionalities / Improvements:
 - Add buttons for solving by steps and in one go
@@ -10,6 +11,7 @@ Functionalities / Improvements:
 - Add option to create nonogram from an image
 
 Aesthetics / QoL:
-- When a match happens, add an animation
+
 
 Bugfix:
+- Animation and cell crossing does not happen when unmarking a cell

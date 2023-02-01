@@ -5,7 +5,7 @@ from gui_functions import mark, create_rounded_rectangle
 
 root = tk.Tk()
 root.title("Nonogram Solver")
-icon = tk.PhotoImage(file="icon.png")
+icon = tk.PhotoImage(file="img/icon.png")
 root.iconphoto(False, icon)
 
 vertical_clues = tk.Canvas(root, width=ncol * cell_size, height=20 * 4)
